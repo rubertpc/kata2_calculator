@@ -51,10 +51,12 @@ class CalcDisplay(ttk.Frame):
         #self._value = value
         self.lblDisplay.configure(text=self._value)
 
+    
     def reset(self):
         self._value ="0"
         self._espositivo = True
         self.pintar()
+    
 
     def signo(self):
         if self._value == '0':
@@ -97,6 +99,7 @@ class Calculator(ttk.Frame):
     _op1 = None
     _op2 = None
     _operador = None
+    _swBorrado = True
 
     def __init__(self, parent, **kwargs):
         ttk.Frame.__init__(self, parent, height=kwargs['height'], width=kwargs['width'])
@@ -105,25 +108,41 @@ class Calculator(ttk.Frame):
         #CalcButton(self, text='C', command=lambda: self.display.addDigit('1')).grid(column=0, row=1)
         #CalcButton(self, text='+/-', command=lambda: self.display.addDigit('1')).grid(column=1, row=1)
         #CalcButton(self, text='%', command=lambda: self.display.addDigit('1')).grid(column=2, row=1)
-        CalcButton(self, text='C', command=self.display.reset).grid(column=0, row=1)
+        CalcButton(self, text='C', command=self.reset).grid(column=0, row=1)
         CalcButton(self, text='+/-', command=self.display.signo).grid(column=1, row=1)
         CalcButton(self, text='%', command=None).grid(column=2, row=1)
-        CalcButton(self, text='÷', command=None).grid(column=3, row=1)
-        CalcButton(self, text='7', command=lambda: self.display.addDigit('7')).grid(column=0, row=2)
-        CalcButton(self, text='8', command=lambda: self.display.addDigit('8')).grid(column=1, row=2)
-        CalcButton(self, text='9', command=lambda: self.display.addDigit('9')).grid(column=2, row=2)
-        CalcButton(self, text='x', command=None).grid(column=3, row=2)
-        CalcButton(self, text='4', command=lambda: self.display.addDigit('4')).grid(column=0, row=3)
-        CalcButton(self, text='5', command=lambda: self.display.addDigit('5')).grid(column=1, row=3)
-        CalcButton(self, text='6', command=lambda: self.display.addDigit('6')).grid(column=2, row=3)
-        CalcButton(self, text='-', command=None).grid(column=3, row=3)
-        CalcButton(self, text='1', command=lambda: self.display.addDigit('1')).grid(column=0, row=4)
-        CalcButton(self, text='2', command=lambda: self.display.addDigit('2')).grid(column=1, row=4)
-        CalcButton(self, text='3', command=lambda: self.display.addDigit('3')).grid(column=2, row=4)
+        CalcButton(self, text='÷', command=lambda: self.opera('÷')).grid(column=3, row=1)
+        CalcButton(self, text='7', command=lambda: self.addDigit('7')).grid(column=0, row=2)
+        CalcButton(self, text='8', command=lambda: self.addDigit('8')).grid(column=1, row=2)
+        CalcButton(self, text='9', command=lambda: self.addDigit('9')).grid(column=2, row=2)
+        CalcButton(self, text='x', command=lambda: self.opera('*')).grid(column=3, row=2)
+        CalcButton(self, text='4', command=lambda: self.addDigit('4')).grid(column=0, row=3)
+        CalcButton(self, text='5', command=lambda: self.addDigit('5')).grid(column=1, row=3)
+        CalcButton(self, text='6', command=lambda: self.addDigit('6')).grid(column=2, row=3)
+        CalcButton(self, text='-', command=lambda: self.opera('-')).grid(column=3, row=3)
+        CalcButton(self, text='1', command=lambda: self.addDigit('1')).grid(column=0, row=4)
+        CalcButton(self, text='2', command=lambda: self.addDigit('2')).grid(column=1, row=4)
+        CalcButton(self, text='3', command=lambda: self.addDigit('3')).grid(column=2, row=4)
         CalcButton(self, text='+', command=lambda: self.opera('+')).grid(column=3, row=4)
-        CalcButton(self, text='0', command=lambda: self.display.addDigit('0'), bw=2).grid(column=0, row=5, columnspan=2)
-        CalcButton(self, text=",", command=None).grid(column=2, row=5)
-        CalcButton(self, text="=", command=None).grid(column=3, row=5)
+        CalcButton(self, text='0', command=lambda: self.addDigit('0'), bw=2).grid(column=0, row=5, columnspan=2)
+        CalcButton(self, text=".", command=None).grid(column=2, row=5)
+        CalcButton(self, text="=", command=lambda: self.opera('=')).grid(column=3, row=5)
+
+    def addDigit(self, digito):
+        if self._swBorrado:
+            self.display.reset()
+            self._swBorrado = False
+
+        self.display.addDigit(digito)
+
+
+    
+    def reset(self):
+        self._op1 = None
+        self._op2 = None
+        self._operador = None
+        self.display.reset()
+
  
     #def enviar(self, value):
     #    self.display.pintar(value)
@@ -132,7 +151,7 @@ class Calculator(ttk.Frame):
         if self._op1 is None:
             self._op1 = float(self.display._value)
             self._operador = operador
-            self.display.reset()    
+            self._swBorrado = True    
         else:
             self._op2 = float(self.display._value)
             if self._operador == '+':
@@ -141,14 +160,19 @@ class Calculator(ttk.Frame):
                 resultado = self._op1 - self._op2
             elif self._operador == 'x':
                 resultado = self._op1 * self._op2
-            else:
+            elif self._operador == '÷':
                 resultado = self._op1 / self._op2
+            else:
+                print("operador incorrecto")
 
             self._op1 = resultado
             self._operador = operador
             resultado = str(resultado)
             self.display._value = resultado
             self.display.pintar()
+
+            self._op2 = None
+            self._swBorrado = True
 
 
 class MainApp(Tk):
