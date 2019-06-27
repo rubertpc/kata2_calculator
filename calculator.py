@@ -22,9 +22,21 @@ class CalcDisplay(ttk.Frame):
         self.lblDisplay.pack(fill=BOTH, expand=True)
 
     def addDigit(self, digito):
+        if self._value[0] != "-" and len(self._value) >= 10 or len(self._value) >= 11:
+            return
+
+        '''
+        if self._value[0]:
+            longmax = 11
+        else:
+            longmax = 10
+
+        if len(self._value) >= longmax:
+            return
 
         if len(self._value) == 10:
             return
+        '''
 
         if self._value == '0':
             self._value = digito
